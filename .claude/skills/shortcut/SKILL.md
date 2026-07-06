@@ -13,7 +13,7 @@ export SHORTCUT_URL_SLUG=<workspace>     # optional — used to build story URLs
 export SHORTCUT_MENTION_NAME=<mention>   # optional — enables %self% in search queries
 ```
 
-Missing token → exit code **11** on every command (including `--help`). Missing slug/mention-name still works but prints two `shortcut-cli: … not configured` warnings to **stderr** on every invocation — set them (or their config-file equivalents) to keep script output clean. If `short` is not on PATH, run `node build/bin/short.js` from the repo (after `pnpm build`) — same interface.
+Missing token → exit code **11** on every subcommand (including `<subcommand> --help`; bare `short --help` works tokenless). Missing slug/mention-name still works but prints two `shortcut-cli: … not configured` warnings to **stderr** on every invocation — set them (or their config-file equivalents) to keep script output clean. If `short` is not on PATH, run `node build/bin/short.js` from the repo (after `pnpm build`) — same interface.
 
 ## The universal tool: `short api`
 
@@ -78,6 +78,6 @@ See the `run-shortcut-cli` skill for building the CLI and mock quirks.
 
 ## Gotchas
 
-- Exit code **11** = missing token (even for `--help`). Exit 0 does **not** always mean success: `create` with an unknown state prints `State … not found` and exits 0 — check output, not just the code.
+- Exit code **11** = missing token (even for subcommand `--help`). Exit 0 does **not** always mean success: `create` with an unknown state prints `State … not found` and exits 0 — check output, not just the code.
 - `%j` on `story`/`search` gives JSON; most list commands don't have a JSON flag — use `short api` when output must be parsed.
 - Story/epic/iteration/state/label flags accept id **or** name (matched by regex) — ids are unambiguous, prefer them in automation.

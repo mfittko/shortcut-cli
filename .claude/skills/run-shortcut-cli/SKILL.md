@@ -71,7 +71,7 @@ npx -y pnpm@10.32.0 run ci            # build + test + format check — what CI 
 
 ## Gotchas
 
-- **Even `--help` exits 11 without a token** — `src/lib/client.ts` loads config at import time, before commander parses. Prefix with `SHORTCUT_API_TOKEN=x` to read help: `SHORTCUT_API_TOKEN=x node build/bin/short.js create --help`.
+- **Even subcommand `--help` exits 11 without a token** — subcommand entrypoints import `src/lib/client.ts`, which loads config at import time, before commander parses. Bare `short --help` (root help) works tokenless. Prefix with `SHORTCUT_API_TOKEN=x` to read subcommand help: `SHORTCUT_API_TOKEN=x node build/bin/short.js create --help`.
 - **`short members` / `short teams` print nothing against the mock** — the spec's canned member is `disabled: true` and the canned team `archived: true`, and the CLI hides both by default. Use `members -d` and `teams -a`.
 - **Operator search hangs against the mock** — the canned `/search/stories` response has `next: "string"` (truthy), so `short search 'state:started'` paginates forever. The driver's 30s per-command timeout would kill it; it is deliberately not in the smoke sweep. Filter-flag search (`search -t foo -q`) and `api /search/stories` are unaffected.
 - **Mock ids are all `1`** — the canned workflow state id is `1`, so `create -t Title -s 1` is the working create invocation. `create -s 500000` prints `State 500000 not found` **and still exits 0**.

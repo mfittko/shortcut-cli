@@ -49,6 +49,9 @@ async function startMock() {
     return server;
 }
 
+// One isolated config dir per driver run, shared across mock invocations
+let mockConfigDir;
+
 function runCli(args, envOverrides = {}, { live = false } = {}) {
     // live: real credentials, real API. mock: fake credentials, Prism, isolated config dir.
     const env = live
@@ -60,7 +63,9 @@ function runCli(args, envOverrides = {}, { live = false } = {}) {
               SHORTCUT_MENTION_NAME: 'driver-user',
               SHORTCUT_API_BASE_URL: BASE_URL,
               // isolate from any real ~/.config/shortcut-cli
-              XDG_CONFIG_HOME: mkdtempSync(path.join(os.tmpdir(), 'short-driver-')),
+              XDG_CONFIG_HOME: (mockConfigDir ??= mkdtempSync(
+                  path.join(os.tmpdir(), 'short-driver-')
+              )),
               ...envOverrides,
           };
     return new Promise((resolve) => {
