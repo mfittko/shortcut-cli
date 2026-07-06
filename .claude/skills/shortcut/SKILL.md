@@ -13,7 +13,28 @@ export SHORTCUT_URL_SLUG=<workspace>     # optional — used to build story URLs
 export SHORTCUT_MENTION_NAME=<mention>   # optional — enables %self% in search queries
 ```
 
-Missing token → exit code **11** on every subcommand (including `<subcommand> --help`; bare `short --help` works tokenless). Missing slug/mention-name still works but prints two `shortcut-cli: … not configured` warnings to **stderr** on every invocation — set them (or their config-file equivalents) to keep script output clean. If `short` is not on PATH, run `node build/bin/short.js` from the repo (after `pnpm build`) — same interface.
+Missing token → exit code **11** on every subcommand (including `<subcommand> --help`; bare `short --help` works tokenless). Missing slug/mention-name still works but prints two `shortcut-cli: … not configured` warnings to **stderr** on every invocation — set them (or their config-file equivalents) to keep script output clean.
+
+`short` comes from a global install (`npm install -g @shortcut-cli/shortcut-cli`). Only when working inside the shortcut-cli repo itself, `node build/bin/short.js` (after `pnpm build`) is the equivalent dev fallback.
+
+## Per-repo defaults (`.shortcut.json`)
+
+If the repo root has a `.shortcut.json`, read it and apply its values to every recipe below:
+
+```json
+{
+    "urlSlug": "<workspace-slug>",
+    "team": "<team name>",
+    "workflow": "<workflow name>",
+    "defaultState": "<state name>",
+    "defaultStoryType": "feature"
+}
+```
+
+- Pass `urlSlug` as `SHORTCUT_URL_SLUG` in the command's env (correct story URLs, no stderr warnings).
+- Default `create` to `-T <team> -s <defaultState> -y <defaultStoryType>` unless the request says otherwise; scope searches to the team when it makes sense.
+- Precedence: explicit request > env vars > `.shortcut.json` > `~/.config/shortcut-cli/config.json`.
+- The file is committed and secret-free (the token never goes in it). To create or update it, run the `/shortcut-cli:shortcut-configure` wizard.
 
 ## The universal tool: `short api`
 

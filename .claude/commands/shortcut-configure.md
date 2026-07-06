@@ -1,0 +1,25 @@
+# Configure Shortcut for this repo
+
+Interactive wizard that writes `.shortcut.json` at the repo root — per-repo defaults the `shortcut` skill applies to its recipes. Follow these steps in order; every value comes from the live API, never from guesses.
+
+1. **Check the CLI and token.** Run `short --help` (root help needs no token). If `short` is not on PATH, tell the user to run `npm install -g @shortcut-cli/shortcut-cli` and stop. Then run `short api /member`: exit code 11 means no token — tell the user to set `SHORTCUT_API_TOKEN` or create `~/.config/shortcut-cli/config.json` with `{"token": "..."}` and stop. On success, note the `mention_name` from the JSON.
+2. **Fetch live options.** Run `short teams -a` and `short workflows`. These list the real team names and the workflows with their state names and ids.
+3. **Ask the user** (AskUserQuestion, one question per topic, options taken verbatim from step 2's output):
+    - which team is this repo's default,
+    - which workflow the team uses,
+    - which state new stories start in (offer that workflow's states),
+    - the default story type (`feature`, `bug`, or `chore`).
+4. **Determine the workspace slug.** Use `SHORTCUT_URL_SLUG` if set; otherwise ask the user (it is the `<slug>` in `https://app.shortcut.com/<slug>/...`).
+5. **Write `.shortcut.json`** at the repo root, exactly this shape, and show it to the user:
+
+```json
+{
+    "urlSlug": "<workspace-slug>",
+    "team": "<team name>",
+    "workflow": "<workflow name>",
+    "defaultState": "<state name>",
+    "defaultStoryType": "feature"
+}
+```
+
+No secrets go in this file — the token stays in env or `~/.config/shortcut-cli/config.json`. The file is meant to be committed. Personal settings (`SHORTCUT_MENTION_NAME`) stay in the user's env, not here.
