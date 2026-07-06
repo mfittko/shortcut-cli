@@ -30,7 +30,7 @@ pnpm only (version pinned via `packageManager` in package.json), Node >= 20.19.
 | `pnpm ci`          | build + test + format check      |
 | `pnpm start`       | Run the built CLI (`short`)      |
 
-Run `pnpm build && pnpm test && pnpm lint && pnpm type-check` before pushing — CI runs each of these (plus `test:format`) as a required matrix job on every PR.
+Run `pnpm build && pnpm test && pnpm test:format && pnpm lint && pnpm type-check` before pushing — CI runs each of these as a required matrix job on every PR.
 
 ## Conventions
 
