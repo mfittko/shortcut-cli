@@ -74,7 +74,8 @@ function runCli(args, envOverrides = {}, { live = false } = {}) {
             },
             (error, stdout, stderr) => {
                 resolve({
-                    exitCode: error ? (error.code ?? 1) : 0,
+                    // error.code can be a string (e.g. ENOENT on spawn failure) — only trust numbers
+                    exitCode: error ? (typeof error.code === 'number' ? error.code : 1) : 0,
                     stdout: String(stdout ?? ''),
                     stderr: String(stderr ?? ''),
                 });
