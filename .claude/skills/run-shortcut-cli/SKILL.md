@@ -23,7 +23,7 @@ Build output lands in `build/` (entry: `build/bin/short.js`).
 The driver is the primary handle. Three modes:
 
 ```bash
-# Full smoke sweep: boots the mock, runs 14 representative commands
+# Full smoke sweep: boots the mock, runs 15 representative commands
 # (lists, story view/update, create, search, raw api GET/POST, missing-token
 # exit code), asserts on exit codes + output, prints PASS/FAIL per check.
 node .claude/skills/run-shortcut-cli/driver.mjs smoke
@@ -40,6 +40,9 @@ SHORTCUT_API_TOKEN=<token> node .claude/skills/run-shortcut-cli/driver.mjs smoke
 # Run ONE CLI command against the mock (boots + tears down around it):
 node .claude/skills/run-shortcut-cli/driver.mjs run -- story 123 -f '%j'
 node .claude/skills/run-shortcut-cli/driver.mjs run -- api /member
+
+# Or against the LIVE API — no read-only guard, this runs exactly what you pass:
+SHORTCUT_API_TOKEN=<token> node .claude/skills/run-shortcut-cli/driver.mjs run --live -- api /member
 ```
 
 ```bash
@@ -73,7 +76,7 @@ npx -y pnpm@10.32.0 run ci            # build + test + format check — what CI 
 
 - **Even subcommand `--help` exits 11 without a token** — subcommand entrypoints import `src/lib/client.ts`, which loads config at import time, before commander parses. Bare `short --help` (root help) works tokenless. Prefix with `SHORTCUT_API_TOKEN=x` to read subcommand help: `SHORTCUT_API_TOKEN=x node build/bin/short.js create --help`.
 - **`short members` / `short teams` print nothing against the mock** — the spec's canned member is `disabled: true` and the canned team `archived: true`, and the CLI hides both by default. Use `members -d` and `teams -a`.
-- **Operator search hangs against the mock** — the canned `/search/stories` response has `next: "string"` (truthy), so `short search 'state:started'` paginates forever. The driver's 30s per-command timeout would kill it; it is deliberately not in the smoke sweep. Filter-flag search (`search -t foo -q`) and `api /search/stories` are unaffected.
+- **`*SearchResults.next` needs a patched spec** — Prism's static sampler ignores `x-nullable` on required fields and synthesizes the literal string `"string"` for `next`, which is truthy and makes pagination (`while (result.data.next)` in `src/lib/stories.ts`) loop forever. `test/scripts/patch-spec.mjs` sets `example: null` on every `*SearchResults.next` field (5 as of writing) so a single mock page terminates pagination; this runs automatically via `pnpm test:update-spec` and has already been applied to the committed fixture.
 - **Mock ids are all `1`** — the canned workflow state id is `1`, so `create -t Title -s 1` is the working create invocation. `create -s 500000` prints `State 500000 not found` **and still exits 0**.
 - **Search's text flag is `-t/--text`** (regex), not `--title`. Positional args are Shortcut search operators (e.g. `state:started`); `%self%` in a query expands to your mention name.
 - **Port 4010 belongs to vitest** — its global setup boots the same mock there. The driver uses 4013 so `smoke` and `pnpm test` can run side by side.

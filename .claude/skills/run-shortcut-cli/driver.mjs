@@ -6,13 +6,18 @@
  * Run from the repo root, after `pnpm install` and `pnpm build`:
  *
  *   node .claude/skills/run-shortcut-cli/driver.mjs smoke        # sweep + assertions vs mock
- *   node .claude/skills/run-shortcut-cli/driver.mjs smoke --live # read-only sweep vs LIVE API
+ *   node .claude/skills/run-shortcut-cli/driver.mjs smoke --live # fixed, read-only sweep vs LIVE API
  *   node .claude/skills/run-shortcut-cli/driver.mjs mock         # foreground mock server
  *   node .claude/skills/run-shortcut-cli/driver.mjs run -- search -t foo -q
  *                                                                # one CLI command vs mock
+ *   node .claude/skills/run-shortcut-cli/driver.mjs run --live -- api /member
+ *                                                                # one CLI command vs LIVE API
  *
- * Live mode uses your real credentials (SHORTCUT_API_TOKEN env or
- * ~/.config/shortcut-cli/config.json) and only ever READS — no create/update.
+ * `smoke --live` runs a fixed, hand-picked set of read-only checks — it never creates
+ * or updates anything. `run --live` executes WHATEVER CLI ARGS YOU PASS against the
+ * real API with your real credentials (SHORTCUT_API_TOKEN env or
+ * ~/.config/shortcut-cli/config.json) — including mutating commands like `create` or
+ * `api -X POST`. There is no built-in read-only guard on `run --live`; that's on you.
  * Mock port defaults to 4013 (vitest owns 4010); override with PRISM_PORT.
  */
 import { execFile } from 'child_process';
@@ -117,8 +122,11 @@ const CHECKS = [
         expect: (r) => r.exitCode === 0 && Boolean(JSON.parse(r.stdout)),
     },
     { name: 'search', args: ['search', '-t', 'foo', '-q'], expect: (r) => r.exitCode === 0 },
-    // NOTE: operator search (`search 'state:started'`) is deliberately absent: the mock's
-    // canned /search/stories response has next:"string", which makes pagination loop forever.
+    {
+        name: 'search with operators',
+        args: ['search', '-q', 'state:started'],
+        expect: (r) => r.exitCode === 0,
+    },
     { name: 'iterations list', args: ['iterations'], expect: (r) => r.exitCode === 0 },
     // -a: the mock's canned team is archived:true, and the CLI hides archived teams by default
     {
@@ -238,15 +246,17 @@ async function main() {
         return; // server keeps the event loop alive
     }
     if (mode === 'run') {
-        const args = rest[0] === '--' ? rest.slice(1) : rest;
-        const server = await startMock();
-        const r = await runCli(args);
-        await server.close();
+        const live = rest[0] === '--live';
+        const dashIndex = rest.indexOf('--');
+        const args = dashIndex >= 0 ? rest.slice(dashIndex + 1) : rest.slice(live ? 1 : 0);
+        const server = live ? null : await startMock();
+        const r = await runCli(args, {}, { live });
+        if (server) await server.close();
         process.stdout.write(r.stdout);
         process.stderr.write(r.stderr);
         process.exit(r.exitCode);
     }
-    console.error('Usage: driver.mjs <smoke|mock|run -- <cli args...>>');
+    console.error('Usage: driver.mjs <smoke [--live] | mock | run [--live] -- <cli args...>>');
     process.exit(2);
 }
 
