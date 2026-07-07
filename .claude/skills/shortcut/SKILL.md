@@ -72,15 +72,25 @@ short search -q 'state:started'            # positional args = Shortcut search o
 ## Other resources
 
 ```bash
+# list
 short epics          # epics with ids and states
 short iterations     # iterations
 short teams          # teams (groups)
 short members -d     # members; -d includes disabled ones (omitting it silently hides them)
 short labels         # labels
 short workflows      # workflows and their state ids (needed for create -s)
+
+# view one resource (human-readable — prefer over `api /<x>/<id>` + jq)
+short epic view <id>         # also: epic stories <id>, epic comments <id>, epic update <id>
+short iteration view <id>    # also: iteration stories <id>, create/update/delete
+short objective view <id>    # also: objective epics <id>, create/update
+short doc view <id>          # also: doc create/update/delete
+short team view <idOrName>   # `view` is the default: `short team <idOrName>` works too
+short label stories <idOrName>   # stories for a label (no bare label view; also: label epics <idOrName>)
+short custom-field <id>      # positional, no subcommand
 ```
 
-These print human-formatted text. When you need JSON from them, use the `api` equivalents: `/epics`, `/iterations`, `/groups`, `/members`, `/labels`, `/workflows`.
+The list commands print human-formatted text; when you need JSON from them, use the `api` equivalents: `/epics`, `/iterations`, `/groups`, `/members`, `/labels`, `/workflows`. For a **single** epic/iteration/objective/doc/team, reach for the `view <id>` command first — it needs no JSON parsing; use `short api /<x>/<id>` only when you need fields the view output omits.
 
 ## Verifying the toolchain
 
@@ -103,4 +113,5 @@ See the `run-shortcut-cli` skill for building the CLI and mock quirks.
 
 - Exit code **11** = missing token (even for subcommand `--help`). Exit 0 does **not** always mean success: `create` with an unknown state prints `State … not found` and exits 0 — check output, not just the code.
 - `%j` on `story`/`search` gives JSON; most list commands don't have a JSON flag — use `short api` when output must be parsed.
+- Capture **stdout only** — the spinner and `… not configured` warnings go to stderr, and merging with `2>&1` mixes spinner control codes into the data. `-q` (where supported) suppresses the spinner.
 - Story/epic/iteration/state/label flags accept id **or** name (matched by regex) — ids are unambiguous, prefer them in automation.
