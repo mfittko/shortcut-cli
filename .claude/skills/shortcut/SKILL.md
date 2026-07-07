@@ -32,9 +32,9 @@ If the repo root has a `.shortcut.json`, read it and apply its values to every r
 }
 ```
 
-- Pass `urlSlug` as `SHORTCUT_URL_SLUG` in the command's env (correct story URLs, no stderr warnings).
+- Pass `urlSlug` as `SHORTCUT_URL_SLUG` in the command's env (correct story URLs, no stderr warning) — note this only takes effect when `~/.config/shortcut-cli/config.json` has no `urlSlug`; for slug and mention name the config file wins and env fills gaps. (`SHORTCUT_API_TOKEN` is the opposite: env beats the config file.)
 - Default `create` to `-T <team> -s <defaultState> -y <defaultStoryType>` unless the request says otherwise; scope searches to the team when it makes sense.
-- Precedence: explicit request > env vars > `.shortcut.json` > `~/.config/shortcut-cli/config.json`.
+- Precedence: explicit request > `.shortcut.json` defaults (applied as command flags, which always win) > the CLI's own config resolution described above.
 - The file is committed and secret-free (the token never goes in it). To create or update it, run the `/shortcut-cli:shortcut-configure` wizard.
 
 ## The universal tool: `short api`
