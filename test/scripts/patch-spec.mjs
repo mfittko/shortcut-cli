@@ -75,11 +75,13 @@ function patchIntegerMinimum(schema, propName) {
 function patchPaginationCursorExample(schema, propName) {
     if (!schema || typeof schema !== 'object') return;
 
+    // Force null unconditionally (not just when no example is set) — an upstream spec
+    // update could ship its own non-null example for `next` and silently reopen the hang.
     if (
         propName === 'next' &&
         schema.type === 'string' &&
         schema['x-nullable'] === true &&
-        !('example' in schema)
+        schema.example !== null
     ) {
         schema.example = null;
         cursorsPatched++;

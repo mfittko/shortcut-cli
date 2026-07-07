@@ -6,13 +6,18 @@
  * Run from the repo root, after `pnpm install` and `pnpm build`:
  *
  *   node .claude/skills/run-shortcut-cli/driver.mjs smoke        # sweep + assertions vs mock
- *   node .claude/skills/run-shortcut-cli/driver.mjs smoke --live # read-only sweep vs LIVE API
+ *   node .claude/skills/run-shortcut-cli/driver.mjs smoke --live # fixed, read-only sweep vs LIVE API
  *   node .claude/skills/run-shortcut-cli/driver.mjs mock         # foreground mock server
  *   node .claude/skills/run-shortcut-cli/driver.mjs run -- search -t foo -q
  *                                                                # one CLI command vs mock
+ *   node .claude/skills/run-shortcut-cli/driver.mjs run --live -- api /member
+ *                                                                # one CLI command vs LIVE API
  *
- * Live mode uses your real credentials (SHORTCUT_API_TOKEN env or
- * ~/.config/shortcut-cli/config.json) and only ever READS — no create/update.
+ * `smoke --live` runs a fixed, hand-picked set of read-only checks — it never creates
+ * or updates anything. `run --live` executes WHATEVER CLI ARGS YOU PASS against the
+ * real API with your real credentials (SHORTCUT_API_TOKEN env or
+ * ~/.config/shortcut-cli/config.json) — including mutating commands like `create` or
+ * `api -X POST`. There is no built-in read-only guard on `run --live`; that's on you.
  * Mock port defaults to 4013 (vitest owns 4010); override with PRISM_PORT.
  */
 import { execFile } from 'child_process';

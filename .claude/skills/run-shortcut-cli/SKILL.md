@@ -40,6 +40,9 @@ SHORTCUT_API_TOKEN=<token> node .claude/skills/run-shortcut-cli/driver.mjs smoke
 # Run ONE CLI command against the mock (boots + tears down around it):
 node .claude/skills/run-shortcut-cli/driver.mjs run -- story 123 -f '%j'
 node .claude/skills/run-shortcut-cli/driver.mjs run -- api /member
+
+# Or against the LIVE API — no read-only guard, this runs exactly what you pass:
+SHORTCUT_API_TOKEN=<token> node .claude/skills/run-shortcut-cli/driver.mjs run --live -- api /member
 ```
 
 ```bash
