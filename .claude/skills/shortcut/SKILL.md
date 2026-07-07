@@ -9,6 +9,7 @@ The `short` CLI is a full replacement for a Shortcut MCP server: env-only auth, 
 
 ```bash
 export SHORTCUT_API_TOKEN=<token>        # required — Shortcut → Settings → API Tokens
+                                         # (alternative: {"token": "..."} in ~/.config/shortcut-cli/config.json)
 export SHORTCUT_URL_SLUG=<workspace>     # optional — used to build story URLs
 export SHORTCUT_MENTION_NAME=<mention>   # optional — enables %self% in search queries
 ```

@@ -2,7 +2,7 @@
 
 Interactive wizard that writes `.shortcut.json` at the repo root — per-repo defaults the `shortcut` skill applies to its recipes. Follow these steps in order; every value comes from the live API, never from guesses.
 
-1. **Check the CLI and token.** Run `short --help` (root help needs no token). If `short` is not on PATH, tell the user to run `npm install -g @shortcut-cli/shortcut-cli` and stop. Then run `short api /member`: exit code 11 means no token — tell the user to set `SHORTCUT_API_TOKEN` or create `~/.config/shortcut-cli/config.json` with `{"token": "..."}` and stop. On success, note the `mention_name` from the JSON.
+1. **Check the CLI and token.** Run `short --help` (root help needs no token). If `short` is not on PATH, tell the user to run `npm install -g @shortcut-cli/shortcut-cli` and stop. Then run `short api /member`: exit code 11 means no token — tell the user to set `SHORTCUT_API_TOKEN` or create `~/.config/shortcut-cli/config.json` with `{"token": "..."}` and stop. On success, note the `mention_name` from the JSON and suggest the user export it as `SHORTCUT_MENTION_NAME` — it is personal, so it belongs in their env rather than `.shortcut.json`, and it enables `%self%` searches and silences the config warning.
 2. **Fetch live options.** Run `short teams -a` and `short workflows`. These list the real team names and the workflows with their state names and ids.
 3. **Ask the user** (AskUserQuestion, one question per topic, options taken verbatim from step 2's output):
     - which team is this repo's default,
