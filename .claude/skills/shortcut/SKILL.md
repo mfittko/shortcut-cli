@@ -67,7 +67,7 @@ short search -q -t 'title regex' -f '%j'   # client-side filters (-t text, -o ow
 short search -q 'state:started'            # positional args = Shortcut search operators, incl. owner:%self%
 ```
 
-`-q` suppresses the loading spinner — always pass it in scripts. For server-side search with exact JSON, prefer `short api /search/stories -f query='...'` (same operators; this form is also what the hermetic mock verifies — operator search via `short search` hangs against the mock, see the `run-shortcut-cli` skill gotchas).
+`-q` suppresses the loading spinner — always pass it in scripts. For server-side search with exact JSON, prefer `short api /search/stories -f query='...'` (same operators).
 
 ## Other resources
 

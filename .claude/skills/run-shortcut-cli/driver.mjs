@@ -117,8 +117,11 @@ const CHECKS = [
         expect: (r) => r.exitCode === 0 && Boolean(JSON.parse(r.stdout)),
     },
     { name: 'search', args: ['search', '-t', 'foo', '-q'], expect: (r) => r.exitCode === 0 },
-    // NOTE: operator search (`search 'state:started'`) is deliberately absent: the mock's
-    // canned /search/stories response has next:"string", which makes pagination loop forever.
+    {
+        name: 'search with operators',
+        args: ['search', '-q', 'state:started'],
+        expect: (r) => r.exitCode === 0,
+    },
     { name: 'iterations list', args: ['iterations'], expect: (r) => r.exitCode === 0 },
     // -a: the mock's canned team is archived:true, and the CLI hides archived teams by default
     {
@@ -238,10 +241,12 @@ async function main() {
         return; // server keeps the event loop alive
     }
     if (mode === 'run') {
-        const args = rest[0] === '--' ? rest.slice(1) : rest;
-        const server = await startMock();
-        const r = await runCli(args);
-        await server.close();
+        const live = rest[0] === '--live';
+        const dashIndex = rest.indexOf('--');
+        const args = dashIndex >= 0 ? rest.slice(dashIndex + 1) : rest.slice(live ? 1 : 0);
+        const server = live ? null : await startMock();
+        const r = await runCli(args, {}, { live });
+        if (server) await server.close();
         process.stdout.write(r.stdout);
         process.stderr.write(r.stderr);
         process.exit(r.exitCode);
