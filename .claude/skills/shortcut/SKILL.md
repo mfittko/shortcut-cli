@@ -9,11 +9,34 @@ The `short` CLI is a full replacement for a Shortcut MCP server: env-only auth, 
 
 ```bash
 export SHORTCUT_API_TOKEN=<token>        # required — Shortcut → Settings → API Tokens
+                                         # (alternative: {"token": "..."} in ~/.config/shortcut-cli/config.json)
 export SHORTCUT_URL_SLUG=<workspace>     # optional — used to build story URLs
 export SHORTCUT_MENTION_NAME=<mention>   # optional — enables %self% in search queries
 ```
 
-Missing token → exit code **11** on every subcommand (including `<subcommand> --help`; bare `short --help` works tokenless). Missing slug/mention-name still works but prints a `shortcut-cli: … not configured` warning to **stderr** per missing value on every invocation — set them (or their config-file equivalents) to keep script output clean. If `short` is not on PATH, run `node build/bin/short.js` from the repo (after `pnpm build`) — same interface.
+Missing token → exit code **11** on every subcommand (including `<subcommand> --help`; bare `short --help` works tokenless). Missing slug/mention-name still works but prints a `shortcut-cli: … not configured` warning to **stderr** per missing value on every invocation — set them (or their config-file equivalents) to keep script output clean.
+
+`short` comes from a global install (`npm install -g @shortcut-cli/shortcut-cli`). Only when working inside the shortcut-cli repo itself, `node build/bin/short.js` (after `pnpm build`) is the equivalent dev fallback.
+
+## Per-repo defaults (`.shortcut.json`)
+
+If the repo root has a `.shortcut.json`, read it and apply its values to every recipe below:
+
+```json
+{
+    "urlSlug": "<workspace-slug>",
+    "team": "<team name>",
+    "workflow": "<workflow name>",
+    "defaultState": "<state name>",
+    "defaultStateId": <state id>,
+    "defaultStoryType": "feature"
+}
+```
+
+- Pass `urlSlug` as `SHORTCUT_URL_SLUG` in the command's env (correct story URLs, no stderr warning) — note this only takes effect when `~/.config/shortcut-cli/config.json` has no `urlSlug`; for slug and mention name the config file wins and env fills gaps. (`SHORTCUT_API_TOKEN` is the opposite: env beats the config file.)
+- Default `create` to `-T <team> -s <defaultStateId> -y <defaultStoryType>` (the numeric id — name matching is regex-based and can hit the wrong state) unless the request says otherwise; scope searches to the team when it makes sense.
+- Precedence: explicit request > `.shortcut.json` defaults > CLI config. This holds unconditionally for `team`/`defaultStateId`/`defaultStoryType` (applied as command flags, which always win); `urlSlug` is applied via env and therefore subject to the caveat above (a `urlSlug` in the user's config file still wins).
+- The file is committed and secret-free (the token never goes in it). To create or update it, run the `/shortcut-cli:shortcut-configure` wizard.
 
 ## The universal tool: `short api`
 

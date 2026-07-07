@@ -1,0 +1,13 @@
+{
+    "name": "shortcut-cli",
+    "version": "5.0.0",
+    "description": "Use Shortcut (shortcut.com) from any repo via the deterministic `short` CLI — skills and a configure wizard that replace a Shortcut MCP server.",
+    "author": {
+        "name": "Manuel Fittko",
+        "email": "manuel.fittko@sofatutor.com"
+    },
+    "license": "MIT",
+    "homepage": "https://github.com/mfittko/shortcut-cli#readme",
+    "repository": "https://github.com/mfittko/shortcut-cli.git",
+    "keywords": ["shortcut", "cli", "skills", "mcp-replacement", "claude-code", "plugin"]
+}
