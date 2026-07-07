@@ -256,7 +256,7 @@ async function main() {
         process.stderr.write(r.stderr);
         process.exit(r.exitCode);
     }
-    console.error('Usage: driver.mjs <smoke|mock|run -- <cli args...>>');
+    console.error('Usage: driver.mjs <smoke [--live] | mock | run [--live] -- <cli args...>>');
     process.exit(2);
 }
 
