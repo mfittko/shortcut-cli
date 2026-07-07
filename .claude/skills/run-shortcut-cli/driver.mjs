@@ -24,7 +24,11 @@ import { fileURLToPath } from 'url';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const SPEC_PATH = path.join(REPO_ROOT, 'test/fixtures/shortcut.swagger.json');
 const CLI = path.join(REPO_ROOT, 'build/bin/short.js');
-const PORT = Number(process.env.PRISM_PORT || 4013);
+const PORT = Number.parseInt(process.env.PRISM_PORT ?? '4013', 10);
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
+    console.error(`[driver] invalid PRISM_PORT: ${process.env.PRISM_PORT}`);
+    process.exit(2);
+}
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 
 async function startMock() {

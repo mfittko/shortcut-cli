@@ -13,7 +13,7 @@ export SHORTCUT_URL_SLUG=<workspace>     # optional — used to build story URLs
 export SHORTCUT_MENTION_NAME=<mention>   # optional — enables %self% in search queries
 ```
 
-Missing token → exit code **11** on every subcommand (including `<subcommand> --help`; bare `short --help` works tokenless). Missing slug/mention-name still works but prints two `shortcut-cli: … not configured` warnings to **stderr** on every invocation — set them (or their config-file equivalents) to keep script output clean.
+Missing token → exit code **11** on every subcommand (including `<subcommand> --help`; bare `short --help` works tokenless). Missing slug/mention-name still works but prints a `shortcut-cli: … not configured` warning to **stderr** per missing value on every invocation — set them (or their config-file equivalents) to keep script output clean.
 
 `short` comes from a global install (`npm install -g @shortcut-cli/shortcut-cli`). Only when working inside the shortcut-cli repo itself, `node build/bin/short.js` (after `pnpm build`) is the equivalent dev fallback.
 
