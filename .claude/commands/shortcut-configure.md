@@ -18,6 +18,7 @@ Interactive wizard that writes `.shortcut.json` at the repo root — per-repo de
     "team": "<team name>",
     "workflow": "<workflow name>",
     "defaultState": "<state name>",
+    "defaultStateId": <state id>,
     "defaultStoryType": "feature"
 }
 ```
